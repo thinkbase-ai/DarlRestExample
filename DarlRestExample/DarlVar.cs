@@ -97,7 +97,32 @@ namespace DarlRestExample
         /// <value>The value.</value>
         public string Value { get; set; } = string.Empty;
 
-
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"name = {name}, datatype = {dataType.ToString()} Central value: {Value}, isUnknown = {unknown.ToString()}, confidence = {weight} ");
+            switch(dataType)
+            {
+                case DataType.numeric:
+                    if(values.Count > 1)//fuzzy value
+                    {
+                        var vals = string.Join(',', values);
+                        sb.Append($"Fuzzy numeric values = {vals}");
+                    }
+                    break;
+                case DataType.categorical:
+                    if (categories.Count > 1)//fuzzy value
+                    {
+                        sb.Append($"Fuzzy categorical values = ");
+                        foreach(var c in categories.Keys)
+                        {
+                            sb.Append($"category: {c} confidence: {categories[c].ToString()}, ");
+                        }
+                    }
+                    break;
+            }
+            return sb.ToString();
+        }
     }
 }
 
