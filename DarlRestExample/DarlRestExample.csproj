@@ -5,4 +5,16 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="UKTaxNI.darl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="UKTaxNI.darl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
 </Project>

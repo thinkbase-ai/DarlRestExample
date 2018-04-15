@@ -1,0 +1,90 @@
+﻿    ruleset UKTAXNI
+    {
+    //Input definitions
+    input numeric EARNED_INCOME  {{Low , 0.000, 0.000}, {High , 1000000.000, 1000000.000}};
+    input numeric DIVIDEND_INCOME  {{Low , 0.000, 0.000}, {High , 1000000.000, 1000000.000}};
+    input numeric AGE_YEARS  {{Low , 0.000, 0.000}, {High , 100.000, 100.000}};
+    input categorical MARRIED  {True, False};
+    input categorical BLIND  {True, False};
+    //Output definitions
+    output numeric TOTAL_ALLOWANCES ;
+    output numeric TOTAL_INCOME ;
+    output numeric EARNED_TAX ;
+    output numeric DIVIDEND_TAX ;
+    output numeric TOTAL_TAX ;
+    output numeric TOTAL_TAX_MONTHLY ;
+    output numeric NI ;
+    output numeric NI_MONTHLY ;
+    output numeric EARNED_INCOME_AFTER_ALLOWANCES ;
+    output numeric TOTAL_INCOME_AFTER_ALLOWANCES ;
+    output numeric TOTAL_YEARLY_TAKE_HOME ;
+    output numeric TOTAL_MONTHLY_TAKE_HOME ;
+    output numeric YEARLY_EMPLOYERS_NI ;
+    output numeric TAX_TAKE_PERCENT ;
+    //numeric constant definitions
+    constant Basic_Allowance 8105;
+    constant Allowance_Income_Limit 100000;
+    constant Blind_Persons_allowance 2100;
+    constant SixtyFive_74_allowance 9940;
+    constant AGE_65 65;
+    constant AGE_75 75;
+    constant SeventyFive_allowance 10090;
+    constant Age_related_income_limit 24000;
+    constant Married_couple_max 7295;
+    constant Married_couple_min 2800;
+    constant Higher_rate_threshold 34371;
+    constant Basic_rate 0.2;
+    constant Higher_rate 0.4;
+    constant Additional_rate_threshold 150000;
+    constant Additional_rate 0.5;
+    constant Savings_starting_rate_threshold 2560;
+    constant Savings_rate 0.1;
+    constant Dividend_upper_rate_threshold 34371;
+    constant Dividend_additional_rate_threshold 150000;
+    constant Dividend_ordinary_rate 0.1;
+    constant Dividend_upper_rate 0.325;
+    constant Dividend_additional_rate 0.425;
+    constant Dividend_grossing_up 1.1111111;
+    constant NI_lower_threshold 7592;
+    constant NI_upper_threshold 42484;
+    constant NI_lower_rate 0.12;
+    constant NI_upper_rate 0.02;
+    constant NI_lower_total 4187;
+    constant ZERO 0;
+    constant Allowance_derating 0.5;
+    constant Employers_NI_Threshold 7488;
+    constant Employers_NI_Rate 0.138;
+    constant One_Hundred 100;
+    constant Twelve 12;
+    constant One 1;
+    constant Ten 10;
+    //string constant definitions
+    string MonthlyEmpNIConst "Employers' NI, per month";
+    //Rule definitions
+    if AGE_YEARS is < AGE_65 and BLIND is False then TOTAL_ALLOWANCES will be maximum( Basic_Allowance - maximum( TOTAL_INCOME - Allowance_Income_Limit , ZERO ) * Allowance_derating , ZERO ) ;
+    if AGE_YEARS is < AGE_65 and BLIND is True then TOTAL_ALLOWANCES will be maximum( Basic_Allowance + Blind_Persons_allowance - maximum( TOTAL_INCOME - Allowance_Income_Limit , ZERO ) * Allowance_derating , ZERO ) ;
+    if AGE_YEARS is >= AGE_65 and BLIND is False and TOTAL_INCOME is < Allowance_Income_Limit and AGE_YEARS is < AGE_75 then TOTAL_ALLOWANCES will be SixtyFive_74_allowance ;
+    if AGE_YEARS is >= AGE_75 and BLIND is False and TOTAL_INCOME is < Allowance_Income_Limit and MARRIED is False then TOTAL_ALLOWANCES will be SeventyFive_allowance ;
+    if EARNED_INCOME is <= TOTAL_ALLOWANCES then EARNED_TAX will be ZERO ;
+    if EARNED_INCOME_AFTER_ALLOWANCES is <= Higher_rate_threshold then EARNED_TAX will be EARNED_INCOME_AFTER_ALLOWANCES * Basic_rate ;
+    if EARNED_INCOME_AFTER_ALLOWANCES is > Higher_rate_threshold and EARNED_INCOME_AFTER_ALLOWANCES is <= Additional_rate_threshold then EARNED_TAX will be Higher_rate_threshold * Basic_rate + ( EARNED_INCOME_AFTER_ALLOWANCES - Higher_rate_threshold ) * Higher_rate ;
+    if EARNED_INCOME_AFTER_ALLOWANCES is > Additional_rate_threshold then EARNED_TAX will be Higher_rate_threshold * Basic_rate + ( Additional_rate_threshold - Higher_rate_threshold ) * Higher_rate + ( EARNED_INCOME_AFTER_ALLOWANCES - Additional_rate_threshold ) * Additional_rate ;
+    if TOTAL_INCOME_AFTER_ALLOWANCES is <= Dividend_upper_rate_threshold then DIVIDEND_TAX will be ZERO ;
+    if TOTAL_INCOME_AFTER_ALLOWANCES is > Dividend_upper_rate_threshold and TOTAL_INCOME_AFTER_ALLOWANCES is <= Dividend_additional_rate_threshold then DIVIDEND_TAX will be minimum( TOTAL_INCOME_AFTER_ALLOWANCES - Dividend_upper_rate_threshold , DIVIDEND_INCOME * Dividend_grossing_up ) * ( Dividend_upper_rate - Dividend_ordinary_rate ) ;
+    if TOTAL_INCOME_AFTER_ALLOWANCES is > Dividend_additional_rate_threshold then DIVIDEND_TAX will be minimum( TOTAL_INCOME_AFTER_ALLOWANCES - Dividend_upper_rate_threshold , DIVIDEND_INCOME * Dividend_grossing_up ) * ( Dividend_upper_rate - Dividend_ordinary_rate ) ;
+    if EARNED_INCOME is <= NI_lower_threshold then NI will be ZERO ;
+    if EARNED_INCOME is > NI_lower_threshold and EARNED_INCOME is <= NI_upper_threshold then NI will be ( EARNED_INCOME - NI_lower_threshold ) * NI_lower_rate ;
+    if EARNED_INCOME is > NI_upper_threshold then NI will be ( EARNED_INCOME - NI_upper_threshold ) * NI_upper_rate + NI_lower_total ;
+    if anything then TOTAL_INCOME will be sum( EARNED_INCOME , DIVIDEND_INCOME * Dividend_grossing_up ) ;
+    if anything then EARNED_INCOME_AFTER_ALLOWANCES will be maximum( EARNED_INCOME - TOTAL_ALLOWANCES , ZERO ) ;
+    if anything then TOTAL_INCOME_AFTER_ALLOWANCES will be maximum( EARNED_INCOME + DIVIDEND_INCOME * Dividend_grossing_up - TOTAL_ALLOWANCES , ZERO ) ;
+    if anything then TOTAL_TAX will be sum( EARNED_TAX , DIVIDEND_TAX ) ;
+    if EARNED_INCOME is <= Employers_NI_Threshold then YEARLY_EMPLOYERS_NI will be ZERO ;
+    if EARNED_INCOME is > Employers_NI_Threshold then YEARLY_EMPLOYERS_NI will be ( EARNED_INCOME - Employers_NI_Threshold ) * Employers_NI_Rate ;
+    if anything then TAX_TAKE_PERCENT will be ( TOTAL_TAX + YEARLY_EMPLOYERS_NI ) / maximum( TOTAL_INCOME + YEARLY_EMPLOYERS_NI , One ) * One_Hundred ;
+    if anything then TOTAL_YEARLY_TAKE_HOME will be EARNED_INCOME + DIVIDEND_INCOME - TOTAL_TAX + NI ;
+    if anything then TOTAL_MONTHLY_TAKE_HOME will be ( EARNED_INCOME + DIVIDEND_INCOME - TOTAL_TAX + NI ) / Twelve ;
+    if anything then NI_MONTHLY will be NI / Twelve ;
+    if anything then TOTAL_TAX_MONTHLY will be TOTAL_TAX / Twelve ;
+    }
+    
