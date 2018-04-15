@@ -1,11 +1,19 @@
+
 # DarlRestExample
 
 This is a simple .net core console app that illustrates performing inferences with the DARL inference service.
 
+This is a free service described at [darl.ai/swagger](http://darl.ai/swagger) that permits students and trial customers to experiment wih the DARL language.
+
 DARL is a language that represents knowledge as Fuzzy logic rules. You can read more about the syntax at [Darl.ai/help](http://darl.ai/help/darl)
 
-This example uses a ruleset that performs the logic and arithmetic for calculation of Taxes in the UK. (It's a little out of date)
+There is an online syntax-checking and suggestion-giving editor at [darl.ai/darldevelop](http://darl.ai/darldevelop).
 
+You can create your own using the [CodeMirror editor](https://codemirror.net/) and the [DARL extension](https://github.com/drandysip/darl-codemirror) 
+
+You can do much more with DARL than just inference. You can data mine to DARL using unsupervised, supervised or reinforcement learning algorithms, and you can use DARL as the source for an intelligent questionnaire engine, which used within our Bot engine. [See more](http://darl.ai)
+
+This example uses a ruleset that performs the logic and arithmetic for calculation of Taxes in the UK. (It's a little out of date)
 
 The example demonstrates:
 * The data structures used to transfer data, DarlInfData and DarlVar
