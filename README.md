@@ -3,6 +3,8 @@
 
 This is a simple .net core console app that illustrates performing inferences with the DARL inference service.
 
+[See the full article here](https://www.codeproject.com/Articles/1239707/The-DARL-language-and-its-online-Fuzzy-Logic-Exper)
+
 This is a free service described at [darl.ai/swagger](http://darl.ai/swagger) that permits students and trial customers to experiment wih the DARL language.
 
 DARL is a language that represents knowledge as Fuzzy logic rules. You can read more about the syntax at [Darl.ai/help](http://darl.ai/help/darl)
