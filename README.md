@@ -46,7 +46,11 @@ the DARL source. If this has syntax errors they will be returned as the result r
 ### values
 A list of DarlVars containing the data to inference from.
 
-# Code
+### Use of new GraphQL API
+This code has been converted to run over the new [Darl.dev GraphQL API](https://darl.dev). This requires registration in order to get the API key required, but is otherwise free at non-commercial scale.
+
+
+# C# Code
 ```C#
        static async Task<List<DarlVar>> PerformInference(string source, List<DarlVar> values)
         {

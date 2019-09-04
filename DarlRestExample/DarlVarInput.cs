@@ -4,33 +4,8 @@ using System.Text;
 
 namespace DarlRestExample
 {
-    /// <summary>
-    /// Class DarlVar.
-    /// </summary>
-    /// <remarks>A general representation of a data value containing related uncertainty information from a fuzzy/possibilistic perspective.</remarks>
-    [Serializable]
-    public partial class DarlVar
+    public class DarlVarInput
     {
-        /// <summary>
-        /// The type of data stored in the DarlVar
-        /// </summary>
-        public enum DataType
-        {
-            /// <summary>
-            /// Numeric including fuzzy
-            /// </summary>
-            numeric,
-            /// <summary>
-            /// One or more categories with confidences
-            /// </summary>
-            categorical,
-            /// <summary>
-            /// Textual
-            /// </summary>
-            textual,
-
-        }
-
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
@@ -59,13 +34,13 @@ namespace DarlRestExample
         /// 3 a triangular fuzzy set,
         /// 4 a trapezoidal fuzzy set.
         /// The values must be ordered in ascending value, but it is permissible for two or more to hold the same value.</remarks>
-        public List<double> values { get; set; } = new List<double>();
+        public List<double> values { get; set; }
 
         /// <summary>
         /// list of categories, each indexed against a truth value.
         /// </summary>
         /// <value>The categories.</value>
-        public Dictionary<string, double> categories { get; set; }
+        public List<StringDoublePair> categories { get; set; }
 
 
         public List<DateTime> times { get; set; }
@@ -83,7 +58,7 @@ namespace DarlRestExample
         /// Gets or sets the type of the data.
         /// </summary>
         /// <value>The type of the data.</value>
-        public DataType dataType { get; set; }
+        public DarlVar.DataType dataType { get; set; }
 
         /// <summary>
         /// Gets or sets the sequence.
@@ -97,32 +72,40 @@ namespace DarlRestExample
         /// <value>The value.</value>
         public string value { get; set; } = string.Empty;
 
-        public override string ToString()
+
+        public static List<DarlVarInput> Convert(List<DarlVar> inputs)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"name = {name}, datatype = {dataType.ToString()} Central value: {value}, isUnknown = {unknown.ToString()}, confidence = {weight} ");
-            switch(dataType)
+            var list = new List<DarlVarInput>();
+            foreach (var d in inputs)
             {
-                case DataType.numeric:
-                    if(values.Count > 1)//fuzzy value
-                    {
-                        var vals = string.Join(',', values);
-                        sb.Append($"Fuzzy numeric values = {vals}");
-                    }
-                    break;
-                case DataType.categorical:
-                    if (categories.Count > 1)//fuzzy value
-                    {
-                        sb.Append($"Fuzzy categorical values = ");
-                        foreach(var c in categories.Keys)
+                list.Add(
+                        new DarlVarInput
                         {
-                            sb.Append($"category: {c} confidence: {categories[c].ToString()}, ");
+                            categories = ConvertToList(d.categories),
+                            dataType = d.dataType,
+                            name = d.name,
+                            sequence = d.sequence,
+                            times = d.times,
+                            unknown = d.unknown,
+                            value = d.value,
+                            values = d.values,
+                            weight = d.weight
                         }
-                    }
-                    break;
+                    );
             }
-            return sb.ToString();
+            return list;
+        }
+
+        public static List<StringDoublePair> ConvertToList(Dictionary<string, double> dict)
+        {
+            if (dict == null)
+                return null;
+            var list = new List<StringDoublePair>();
+            foreach (var k in dict.Keys)
+            {
+                list.Add(new StringDoublePair { name = k, value = dict[k] });
+            }
+            return list;
         }
     }
 }
-

@@ -59,7 +59,6 @@
     constant One 1;
     constant Ten 10;
     //string constant definitions
-    string MonthlyEmpNIConst "Employers' NI, per month";
     //Rule definitions
     if AGE_YEARS is < AGE_65 and BLIND is False then TOTAL_ALLOWANCES will be maximum( Basic_Allowance - maximum( TOTAL_INCOME - Allowance_Income_Limit , ZERO ) * Allowance_derating , ZERO ) ;
     if AGE_YEARS is < AGE_65 and BLIND is True then TOTAL_ALLOWANCES will be maximum( Basic_Allowance + Blind_Persons_allowance - maximum( TOTAL_INCOME - Allowance_Income_Limit , ZERO ) * Allowance_derating , ZERO ) ;
