@@ -52,17 +52,33 @@ This code has been converted to run over the new [Darl.dev GraphQL API](https://
 
 # C# Code
 ```C#
-       static async Task<List<DarlVar>> PerformInference(string source, List<DarlVar> values)
+        static async Task<List<DarlVar>> PerformInference(string source, List<DarlVar> values)
         {
-            var data = new DarlInfData { source = source, values = values };
-            var valueString = JsonConvert.SerializeObject(data);
-            var client = new HttpClient();
-            var response = await client.PostAsync("https://darl.ai/api/Linter/DarlInf", new StringContent(valueString, Encoding.UTF8, "application/json"));
-            var resp = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<DarlVar>>(resp);
+
+            GraphQLClient client = new GraphQLClient("https://darl.dev/graphql/");
+            var authcode = "Your authorization code here";
+            client.DefaultRequestHeaders.Add("Authorization", $"Basic {authcode}");
+            client.Options.JsonSerializerSettings.Converters.Add(new StringEnumConverter());
+            var req = new GraphQLRequest() {
+                Query = @"mutation ifd($code: String!, $inputs: [darlVarUpdate]!){inferFromDarl(code: $code, inputs: $inputs){name value dataType unknown weight}}",
+                Variables = new {code = source, inputs = DarlVarInput.Convert(values)},
+                OperationName = "ifd"
+            };
+            var resp = await client.PostAsync(req);
+            if(resp.Errors != null)//error handling, for instance DARL compilation errors
+            {
+                var errors = new List<DarlVar>();
+                int errorCount = 1;
+                foreach(var error in resp.Errors)
+                {
+                    errors.Add(new DarlVar { name = $"error{errorCount++}", value = error.Message, dataType = DarlVar.DataType.textual });
+                }
+                return errors; //report errors
+            }
+            return resp.GetDataFieldAs<List<DarlVar>>("inferFromDarl");
         }
 ```
-This function sends code and source to the inference API and returns a set of results
+This function sends code and source to the GraphQL API and returns a set of results
 
 ```C#
        static async Task DarlInference()
